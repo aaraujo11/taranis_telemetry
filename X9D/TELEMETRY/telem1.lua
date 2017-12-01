@@ -29,10 +29,10 @@ local min_rssi = 45
 
 -- SWITCHES
 local SW_FS = 'sf'
-local SW_ARM = 'sd'
+local SW_ARM = 'sa'
 local SW_FMODE = 'sc'
 local SW_BBOX = 'sa'
-local SW_BEEPR = 'se'
+local SW_BEEPR = 'sh'
 
 -- Data Sources
 local DS_VFAS = 'VFAS'
@@ -72,10 +72,10 @@ local function drawBatt()
   local step_size = range/total_steps
   local current_level = math.floor(total_steps - ((cell - min_batt) / step_size))
   lcd.drawFilledRectangle(3, 10 + current_level, 26, 30 - current_level, SOLID)
-  -- Values
-  lcd.drawText(1, 45, round(cell, 4), DBLSIZE)
+  -- Values AQUI
+  lcd.drawText(1, 45, round(batt, 2), DBLSIZE)
   -- Calculate and display the battery cell count (3S, 4S)
-  if (cell_count > 0) then 
+  if (cell_count > 0) then
     lcd.drawText(grid_limit_left + 2, min_y + header_height + cell_height * 2 + 3, cell_count .. "S", DBLSIZE)
   end
 end
@@ -118,11 +118,11 @@ local function cell_1()
   local f_mode = "UNKN"
   local fm = getValue(SW_FMODE)
 	if fm < -1000 then
-		f_mode = "ACRO"
+		f_mode = "ANGL"
 	elseif (-10 < fm and fm < 10) then
 		f_mode = "HRZN"
 	elseif fm > 1000 then
-	    f_mode = "ANGL"
+	    f_mode = "ACRO"
 	end
   lcd.drawText(x1 + 26, y1 + 4, f_mode, DBLSIZE)
 end
@@ -137,7 +137,7 @@ local function cell_2()
   local bbox = getValue(SW_BBOX)  -- blackbox
   local beepr = getValue(SW_BEEPR)  -- blackbox
 
-  if (armed < 10 and failsafe < 0) then
+  if (armed < 0 and failsafe < 0) then
     lcd.drawPixmap(x1 + 4, y1 + 1, "/SCRIPTS/BMP/armed.bmp")
   elseif (failsafe < 0) then
     lcd.drawPixmap(x1 + 4, y1 + 1, "/SCRIPTS/BMP/armed_no.bmp")
@@ -155,7 +155,7 @@ local function cell_2()
     lcd.drawPixmap(x1 + 4, y1 + 11, "/SCRIPTS/BMP/blkbox_no.bmp")
   end
 
-  if (beepr < -10 and failsafe < 0) then
+  if (beepr > -10 and failsafe < 0) then
     lcd.drawPixmap(x1 + 40, y1 + 11, "/SCRIPTS/BMP/beepr.bmp")
   elseif (failsafe < 0) then
     lcd.drawPixmap(x1 + 40, y1 + 11, "/SCRIPTS/BMP/beepr_no.bmp")
@@ -173,7 +173,7 @@ local function cell_3()
   local y1 = min_y + header_height + cell_height * 2
 
   local rssi_min = getValue(DS_RSSI_MIN)
-  local cell_min = getValue(DS_CELL_MIN)
+  local cell_min = round(getValue(DS_CELL_MIN),2)
 
   lcd.drawPixmap(x1 + 22, y1 + 1, "/SCRIPTS/BMP/rssi_min.bmp")
   lcd.drawText(x1 + 53, y1 + 3, rssi_min .. "dB", SMLSIZE)
